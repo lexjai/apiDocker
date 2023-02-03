@@ -2,7 +2,7 @@ FROM  ubuntu
 ENV  DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Madrid
 ENV NODE_VERSION=18
-ENV APP=app
+ENV APP=back
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get update
@@ -34,6 +34,11 @@ RUN apt-get install -y gnupg gosu curl ca-certificates zip unzip git supervisor 
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 COPY \src /src
 RUN cd /src \
-    git clone https://github.com/lexjai/back.git \
+    git clone https://github.com/lexjai/back.git  \
+    cd back \
     && composer install \
     && composer update 
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY php.ini /etc/php/8.2/cli/conf.d/laravel.ini
+RUN chmod -R 775 /src/$APP/ \
+    && chown -R www-data:www-data /src/$APP/
